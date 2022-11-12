@@ -1,0 +1,35 @@
+{
+  "manifest_version": 2,
+  "name": "RIverVIEW",
+  "version": "0.1",
+  "description": "ai기반 리뷰 분석 프로그램",
+  "permissions": ["webRequest", "tabs", "<all_urls>", "http://192.249.18.224:3000/", "bookmarks"],
+  "background": {
+    "scripts": ["static/js/background.js"],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "js": ["static/js/content.js"],
+      "matches": ["http://*.example.com/*", "https://*.example.com/*"]
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "browser_action": {
+    "default_icon": "icon128.png",
+    "icons": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    },
+    "default_title": "Popup",
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "options.html"
+  }
+}
