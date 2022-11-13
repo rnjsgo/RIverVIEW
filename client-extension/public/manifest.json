@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "RIverVIEW",
+  "name": "Extension Name",
   "version": "0.1",
-  "description": "ai기반 리뷰 분석 프로그램",
+  "description": "Some Description",
   "permissions": ["webRequest", "tabs", "<all_urls>", "http://192.249.18.224:3000/", "bookmarks"],
   "background": {
     "scripts": ["static/js/background.js"],
