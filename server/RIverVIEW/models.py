@@ -9,7 +9,7 @@ class ProductModel(models.Model):
         return self.product_name
     product_url = models.CharField(max_length=256, default='')
     product_name = models.CharField(max_length=256, default='')
-    product_id = models.IntegerField(null=True)
+    product_num = models.IntegerField(null=True)
     categories = models.TextField(null=True)
     img_src = models.CharField(max_length=256, default='')
     price = models.CharField(max_length=32, default='')
