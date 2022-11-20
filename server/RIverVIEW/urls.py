@@ -2,7 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.foward_home, name='foward_home')
+    path('', views.foward_home, name='foward_home'),
+    path('details/<int:product_id>/',views.view_details, name='product_detail'),
+
     # path('home/', views.home, name='home'),
     # path('modal/<int:id>/', views.product_detail, name='product_detail'),
     # path('home/url_search/', views.url_search, name='url_search'),
