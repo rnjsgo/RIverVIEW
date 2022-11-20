@@ -10,6 +10,7 @@ class ProductModel(models.Model):
     product_url = models.CharField(max_length=256, default='')
     product_name = models.CharField(max_length=256, default='')
     product_num = models.IntegerField(null=True)
+    product_score = models.IntegerField(null=True)
     categories = models.TextField(null=True)
     img_src = models.CharField(max_length=256, default='')
     price = models.CharField(max_length=32, default='')
@@ -25,6 +26,7 @@ class ReviewModel(models.Model):
 class ProductKeyword(models.Model):
     class Meta:
         db_table = "PDkeyword"
+        ordering = ["-keyword_frequency"]
     product_id = models.ForeignKey(ProductModel, on_delete=models.CASCADE, default='')
     keyword = models.CharField(max_length=20, default='')
     summarization = models.CharField(max_length=256, default='') #해당 키워드의 대표 리뷰

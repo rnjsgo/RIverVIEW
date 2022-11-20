@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block content %}
+<head>
+    <h2 class="border-bottom py-2">{{ product.product_name }}</h2>
+    <img src="{{product.img_src}}" alt="product_img">
+</head>
+<body>
+    <div class="ai-score-card">
+        <div class="card">
+            <div class="card-body">
+                <h4>AI score</h4>
+                <h1 style="text-align: center">{{product.product_score}}점</h1>
+                {% if product.product_score >= 70 %}
+                    좋은 상품입니다! 당장 구입하세요!
+                {% elif product.product_score >= 50 %}
+                   괜찮은 상품인것 같아요! 하지만 리뷰를고려해보세요
+                {% else %}
+                    쓰레기네요!!
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="frequent-rank-table">
+            <div class="card">
+                <div class="card-body">
+                    <h4>가장 많이 언급된 단어</h4>
+                    {{ product.productkeyword_set.count }}개가 있습니다.
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">빈도수</th>
+                          <th scope="col">키워드</th>
+                          <th scope="col">키워드별 만족도</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for word in product.productkeyword_set.all %}
+                            <tr>
+                              <th scope="row">{{ forloop.counter }}위</th>
+                              <td>{{ word.keyword }}</td>
+                              <td>{{ word.keyword_score }}</td>
+                            </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="frequent-rank-table">
+            <div class="card">
+                <div class="card-body">
+                    <h4>많은 사람들이 이걸 좋아해요</h4>
+                    긍정적인 키워드가 {{ product.productkeyword_set.count|fi }}개가 있습니다.
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">빈도수</th>
+                          <th scope="col">키워드</th>
+                          <th scope="col">키워드별 만족도</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for word in product.productkeyword_set.all %}
+                            <tr>
+                              <th scope="row">{{ forloop.counter }}위</th>
+                              <td>{{ word.keyword }}</td>
+                              <td>{{ word.keyword_score }}</td>
+                            </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+{% endblock %}
