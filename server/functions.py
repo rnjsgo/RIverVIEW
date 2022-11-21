@@ -12,6 +12,12 @@ import gensim
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict
 
+import os
+from pathlib import Path
+from PIL import Image
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+'''
 mecab = Mecab()
 word2vec_model = gensim.models.Word2Vec.load('word2vec_by_mecab.model')
 containers = set(['NNG', 'NNP', 'NNB', 'NNBC', 'NR', 'NP', 'VV', 'VA', 'VX', 'VCP', 'VCN', 'MM'])
@@ -583,3 +589,13 @@ def lets_do_crawling(site, product_num, url_src=None):
     result, keyword, vocab_sorted, keyword_ratio = result_of_code(tem_data[['date', 'review']])
 
     return tem_data, product_name, img_src, price, categories, result, keyword, keyword_ratio
+'''
+
+def make_wordcloud(words, filename):
+    BASE_DIR = Path(__file__).resolve().parent
+    STATIC_DIR = os.path.join(BASE_DIR, 'static')
+    filename = STATIC_DIR + '/image/'+filename
+    fontpath = STATIC_DIR + '/fonts/jua.ttf'
+    mask = np.array(Image.open(STATIC_DIR+'/image/circle.png'))
+    wordcloud = WordCloud(font_path=fontpath, mask= mask).generate_from_frequencies(words)
+    wordcloud.to_file(filename+'.png')

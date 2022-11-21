@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <head>
     <h2 class="border-bottom py-2">{{ product.product_name }}</h2>
     <img src="{{product.img_src}}" alt="product_img">
+
 </head>
 <body>
     <div class="ai-score-card">
@@ -19,61 +21,90 @@
                 {% endif %}
             </div>
         </div>
+    </div>
 
-        <div class="frequent-rank-table">
-            <div class="card">
-                <div class="card-body">
-                    <h4>가장 많이 언급된 단어</h4>
-                    {{ product.productkeyword_set.count }}개가 있습니다.
-                    <table class="table">
-                      <thead>
+    <div class="frequent-rank-table">
+        <div class="card">
+            <div class="card-body">
+                <h4>가장 많이 언급된 단어</h4>
+                {{ product.productkeyword_set.count }}개가 있습니다.
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">빈도수</th>
+                      <th scope="col">키워드</th>
+                      <th scope="col">키워드별 만족도</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for word in product.productkeyword_set.all %}
                         <tr>
-                          <th scope="col">빈도수</th>
-                          <th scope="col">키워드</th>
-                          <th scope="col">키워드별 만족도</th>
+                          <th scope="row">{{ forloop.counter }}위</th>
+                          <td>{{ word.keyword }}</td>
+                          <td>{{ word.keyword_score }}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {% for word in product.productkeyword_set.all %}
-                            <tr>
-                              <th scope="row">{{ forloop.counter }}위</th>
-                              <td>{{ word.keyword }}</td>
-                              <td>{{ word.keyword_score }}</td>
-                            </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="frequent-rank-table">
-            <div class="card">
-                <div class="card-body">
-                    <h4>많은 사람들이 이걸 좋아해요</h4>
-                    긍정적인 키워드가 {{ product.productkeyword_set.count|fi }}개가 있습니다.
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <th scope="col">빈도수</th>
-                          <th scope="col">키워드</th>
-                          <th scope="col">키워드별 만족도</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for word in product.productkeyword_set.all %}
-                            <tr>
-                              <th scope="row">{{ forloop.counter }}위</th>
-                              <td>{{ word.keyword }}</td>
-                              <td>{{ word.keyword_score }}</td>
-                            </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                </div>
+                    {% endfor %}
+                  </tbody>
+                </table>
             </div>
         </div>
     </div>
+
+    <div class="pos_keyword-rank-table">
+        <div class="card">
+            <div class="card-body">
+                <h4>많은 사람들이 이걸 좋아해요</h4>
+                긍정적인 키워드가 {{ pos_keyword_cnt }}개가 있습니다.
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">빈도수</th>
+                      <th scope="col">키워드</th>
+                      <th scope="col">키워드별 만족도</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for word in pos_keyword %}
+                        <tr>
+                          <th scope="row">{{ forloop.counter }}위</th>
+                          <td>{{ word.keyword }}</td>
+                          <td>{{ word.keyword_score }}</td>
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+     <div class="neg_keyword-rank-table">
+        <div class="card">
+            <div class="card-body">
+                <h4>많은 사람들이 이걸 싫어해요</h4>
+                부정적인 키워드가 {{neg_keyword_cnt}} 개가 있습니다.
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">빈도수</th>
+                      <th scope="col">키워드</th>
+                      <th scope="col">키워드별 만족도</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for word in neg_keyword %}
+                        <tr>
+                          <th scope="row">{{ forloop.counter }}위</th>
+                          <td>{{ word.keyword }}</td>
+                          <td>{{ word.keyword_score }}</td>
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <img src="{% static '/image/1.png' %}">
+
 
 
 </body>
