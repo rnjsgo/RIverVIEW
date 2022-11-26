@@ -1,4 +1,4 @@
-# from functions import *
+from functions import *
 from django.shortcuts import render, redirect
 from .models import ProductModel, ReviewModel, ProductKeyword
 import re
@@ -37,7 +37,7 @@ def search(request):
                 search_product.save()
                 id = search_product.id
                 return redirect('/modal/{}/'.format(id))
-            #11번가 , 네이버의 url을 받았을 때
+            #11번가 , 네이버의 url을 받았을 때 크롤링
             else:
                 if '11st' in url:
                     site = 1
@@ -49,6 +49,7 @@ def search(request):
                         site, product_num, url)
                 else: # 지원하지 않는 URL 형식
                     return render(request, 'RIverVIEW/main.html',  {'first': first})
+
 
                 product_name = []
                 for sen in pre_product_name.split():
