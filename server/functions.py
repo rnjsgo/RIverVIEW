@@ -17,14 +17,14 @@ from pathlib import Path
 from PIL import Image
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-'''
+
 mecab = Mecab()
-word2vec_model = gensim.models.Word2Vec.load('word2vec_by_mecab.model')
+word2vec_model = gensim.models.Word2Vec.load('./word2vec.model')
 containers = set(['NNG', 'NNP', 'NNB', 'NNBC', 'NR', 'NP', 'VV', 'VA', 'VX', 'VCP', 'VCN', 'MM'])
 stop_words = set(['JKC', 'JKG', 'JKO', 'JKB', 'JKV', 'JKQ', 'JX', 'JC'])
 useless_NNG = set(['만족', '구입', '구매', '생각', '때', '주문', '정도', '느낌', '맘', '마음', '상품', '제품', '물건'])
-con = pd.read_csv("word_vector.csv", usecols=['0', 'total_value'])
-word_index = set(con['0'].to_list())
+con = pd.read_csv("word2vec_decomposition.csv", usecols=['word', 'total_value'])
+word_index = set(con['total_value'].to_list())
 con = np.array(con)
 weights = np.load('weights.npy', allow_pickle=True)
 hangul = re.compile('[^0-9a-zA-Z가-힣\s]')
@@ -589,7 +589,7 @@ def lets_do_crawling(site, product_num, url_src=None):
     result, keyword, vocab_sorted, keyword_ratio = result_of_code(tem_data[['date', 'review']])
 
     return tem_data, product_name, img_src, price, categories, result, keyword, keyword_ratio
-'''
+
 
 def make_wordcloud(words, filename):
     BASE_DIR = Path(__file__).resolve().parent
