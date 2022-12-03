@@ -11,11 +11,11 @@ class ProductModel(models.Model):
     product_name = models.CharField(max_length=256, default='')
     product_num = models.IntegerField(null=True)
     product_score = models.IntegerField(null=True)
-    categories = models.TextField(null=True)
     img_src = models.CharField(max_length=256, default='')
-    price = models.CharField(max_length=32, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    word_cloud= models.CharField(max_length=256,default='')
+
 
 class ReviewModel(models.Model):
     class Meta:

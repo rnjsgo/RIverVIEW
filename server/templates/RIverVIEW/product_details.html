@@ -12,12 +12,16 @@
             <div class="card-body">
                 <h4>AI score</h4>
                 <h1 style="text-align: center">{{product.product_score}}점</h1>
-                {% if product.product_score >= 70 %}
-                    좋은 상품입니다! 당장 구입하세요!
+                {% if product.product_score >= 90 %}
+                    최고의 상품이에요. 적극 추천합니다! ;)
+                {% elif product.product_score >= 70 %}
+                    좋은 상품이네요. 대부분의 구매자들이 만족하고 있어요!
                 {% elif product.product_score >= 50 %}
-                   괜찮은 상품인것 같아요! 하지만 리뷰를고려해보세요
+                   괜찮은 상품인것 같아요! 하지만 분석 결과를 고려해보세요.
+                {% elif product.product_score >= 30 %}
+                   구입을 신중하게 생각해봐야 하겠는걸요?
                 {% else %}
-                    쓰레기네요!!
+                    저희는 이 상품을 추천하지 않아요 :(
                 {% endif %}
             </div>
         </div>
@@ -26,7 +30,7 @@
     <div class="frequent-rank-table">
         <div class="card">
             <div class="card-body">
-                <h4>가장 많이 언급된 단어</h4>
+                <h4>주요 키워드</h4>
                 {{ product.productkeyword_set.count }}개가 있습니다.
                 <table class="table">
                   <thead>
@@ -53,12 +57,12 @@
     <div class="pos_keyword-rank-table">
         <div class="card">
             <div class="card-body">
-                <h4>많은 사람들이 이걸 좋아해요</h4>
+                <h4>이 상품의 장점</h4>
                 긍정적인 키워드가 {{ pos_keyword_cnt }}개가 있습니다.
                 <table class="table">
                   <thead>
                     <tr>
-                      <th scope="col">빈도수</th>
+                      <th scope="col">만족도</th>
                       <th scope="col">키워드</th>
                       <th scope="col">키워드별 만족도</th>
                     </tr>
@@ -80,12 +84,12 @@
      <div class="neg_keyword-rank-table">
         <div class="card">
             <div class="card-body">
-                <h4>많은 사람들이 이걸 싫어해요</h4>
+                <h4>이 상품의 단점</h4>
                 부정적인 키워드가 {{neg_keyword_cnt}} 개가 있습니다.
                 <table class="table">
                   <thead>
                     <tr>
-                      <th scope="col">빈도수</th>
+                      <th scope="col">만족도</th>
                       <th scope="col">키워드</th>
                       <th scope="col">키워드별 만족도</th>
                     </tr>
@@ -103,7 +107,15 @@
             </div>
         </div>
     </div>
-    <img src="{% static '/image/1.png' %}">
+         <div class="wordCloud">
+             <div class="card">
+            <div class="card-body">
+
+             <h4>상품 키워드 한눈에 보기!</h4>
+             <img src="{% static '/image/1.png' %}">
+            </div>
+             </div>
+         </div>
 
 
 
