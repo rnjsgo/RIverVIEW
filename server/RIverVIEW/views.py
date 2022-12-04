@@ -16,22 +16,23 @@ def view_details(request, product_id):
     neg_keyword = []
     keywords = {}
     for keyword in ProductKeyword.objects.filter(product_id= product_id):
-        if keyword.keyword_score > 0 and len(pos_keyword) <= 3:
+        if keyword.keyword_score > 50 and len(pos_keyword) <= 3:
             pos_keyword.append(keyword)
-        elif keyword.keyword_score < 0 and len(neg_keyword) <= 3:
+        elif keyword.keyword_score < 50 and len(neg_keyword) <= 3:
             neg_keyword.append(keyword)
-        if keyword.keyword in keywords:
-            keywords[keyword.keyword] = keywords[keyword] + 1
-        else:
-            keywords[keyword.keyword] = 1
+        keywords[keyword.keyword] = keyword.keyword_frequency
     make_wordcloud(keywords, str(product_id))
+
+    pos_keyword.sort(key=lambda x: x.keyword_score,reverse=True)
+    neg_keyword.sort(key=lambda x: x.keyword_score)
 
     context = {
         "product": product,
         "neg_keyword": neg_keyword[:5],
         "neg_keyword_cnt": len(neg_keyword[:5]),
         "pos_keyword": pos_keyword[:5],
-        "pos_keyword_cnt": len(pos_keyword[:5])
+        "pos_keyword_cnt": len(pos_keyword[:5]),
+        "review": ReviewModel.objects.get(product_id=product_id)
     }
     return render(request, 'RiverView/product_details.html',context)
 

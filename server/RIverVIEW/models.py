@@ -10,11 +10,9 @@ class ProductModel(models.Model):
     product_url = models.CharField(max_length=256, default='')
     product_name = models.CharField(max_length=256, default='')
     product_num = models.IntegerField(null=True)
-    product_score = models.IntegerField(null=True)
     img_src = models.CharField(max_length=256, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    word_cloud= models.CharField(max_length=256,default='')
 
 
 class ReviewModel(models.Model):
@@ -22,6 +20,9 @@ class ReviewModel(models.Model):
         db_table = "review"
     product_id = models.ForeignKey(ProductModel, on_delete=models.CASCADE,default='')
     review = models.CharField(max_length=1000)
+    product_score = models.IntegerField(null=True)
+    word_cloud= models.ImageField(blank=True)
+
 
 class ProductKeyword(models.Model):
     class Meta:

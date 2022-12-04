@@ -99,9 +99,6 @@ def Crawling(product_num, merchant_num, store, pageNo):
         elif store == 'brand':
             url = 'https://{}.naver.com/n/v1/reviews/paged-reviews?page={}&pageSize=10&merchantNo={}&originProductNo={}&sortType=REVIEW_RANKING'.format(
                 store, pageNo, merchant_num, product_num)  # REVIEW_RANKING
-        elif store == 'search':
-            url = 'https://{}.shopping.naver.com/n/v1/reviews/paged-reviews?page={}&pageSize=10&merchantNo={}&originProductNo={}&sortType=REVIEW_RANKING'.format(
-                store, pageNo, merchant_num, product_num)  # REVIEW_RANKING
         else:
             url = ''
         print(url)
@@ -111,9 +108,6 @@ def Crawling(product_num, merchant_num, store, pageNo):
         for rev in json_data:
             if rev['reviewContent']:
                 review = rev['reviewContent'].replace("\n", " ")
-                if len(review) <= 3:
-                    temp.append(['2018.02.27', '좋아요', ['좋아요'], [1.76], 9.1899])
-                    continue
                 date = rev['createDate'].split('T')[0]
                 date = date.replace("-", ".")
 
@@ -515,12 +509,11 @@ def start_crawling(product_num, url_src=None):
 
         product_name = soup.find('h3', attrs={'class': '_3oDjSvLwq9 _copyable'}).text.strip()
         img_src = soup.find('div', attrs={'class': '_23RpOU6xpc'}).find('img')['src']
-        price = soup.find('span', attrs={'class': '_1LY7DqCnwR'}).text
 
         pool = Pool(8) # 사용될 프로세스 수
         func = partial(Crawling, product_num, merchant_num, store) #pool.map을 사용하기위해 매개변수가 하나인 함수로 만들기 위해 새로 함수 생성
-        output = pool.map(func, range(1,151)) # 1~100페이지 까지 크롤링, 총 2000개의 리뷰까지 크롤링
-        pool.close()
+        output = pool.map(func, range(1,50)) # 네이버쇼핑 페이지에서는 한페이지에 리뷰 20개, JSON은 한페이지에 리뷰 10개 저장
+        pool.close()                        #그래서 리뷰 10페이지까지 보고싶다하면 20페이지까지로 설정해야 다 가져올수 잇음
         pool.join()
         print(img_src,product_name,output)
 
@@ -528,7 +521,6 @@ def start_crawling(product_num, url_src=None):
     # 데이터프레임 생성
     # text = [j for i in output for j in i]
     # tem_data = pd.DataFrame(text, columns=['date', 'review', 'xai_before_text', 'xai_value', 'xai_positive_negative'])
-    # tem_data.drop_duplicates(['review'], inplace=True) #중복 리뷰 제거
     # tem_data.reset_index(drop=True, inplace=True)
     # result, keyword, vocab_sorted, keyword_ratio = result_of_code(tem_data[['date', 'review']]) #리뷰 요약
     #
@@ -543,3 +535,4 @@ def make_wordcloud(words, filename):
     mask = np.array(Image.open(STATIC_DIR+'/image/circle.png'))
     wordcloud = WordCloud(font_path=fontpath, mask= mask).generate_from_frequencies(words)
     wordcloud.to_file(filename+'.png')
+

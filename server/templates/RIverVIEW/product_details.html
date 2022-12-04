@@ -2,16 +2,16 @@
 {% load static %}
 {% block content %}
 <head>
+    <link rel="stylesheet" href="{% static '/detail.css' %}">
     <h2 class="border-bottom py-2">{{ product.product_name }}</h2>
     <img src="{{product.img_src}}" alt="product_img">
-
 </head>
 <body>
     <div class="ai-score-card">
         <div class="card">
             <div class="card-body">
                 <h4>AI score</h4>
-                <h1 style="text-align: center">{{product.product_score}}점</h1>
+                <h1 style="text-align: center">{{review.product_score}}점</h1>
                 {% if product.product_score >= 90 %}
                     최고의 상품이에요. 적극 추천합니다! ;)
                 {% elif product.product_score >= 70 %}
@@ -45,7 +45,16 @@
                         <tr>
                           <th scope="row">{{ forloop.counter }}위</th>
                           <td>{{ word.keyword }}</td>
-                          <td>{{ word.keyword_score }}</td>
+                          <td>
+                {% if word.keyword_score <= 35 %}
+                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD2525"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                {% elif word.keyword_score <= 60 %}
+                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD801D"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                {% else %}
+                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #45892C"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                {% endif %}
+                <div class='a1_ratio'>{{ word.keyword_score }}%</div>
+                          </td>
                         </tr>
                     {% endfor %}
                   </tbody>
@@ -57,12 +66,12 @@
     <div class="pos_keyword-rank-table">
         <div class="card">
             <div class="card-body">
-                <h4>이 상품의 장점</h4>
+                <h4>이 상품은 이런 점이 좋아요!</h4>
                 긍정적인 키워드가 {{ pos_keyword_cnt }}개가 있습니다.
                 <table class="table">
                   <thead>
                     <tr>
-                      <th scope="col">만족도</th>
+                      <th scope="col">긍정적</th>
                       <th scope="col">키워드</th>
                       <th scope="col">키워드별 만족도</th>
                     </tr>
@@ -72,7 +81,16 @@
                         <tr>
                           <th scope="row">{{ forloop.counter }}위</th>
                           <td>{{ word.keyword }}</td>
-                          <td>{{ word.keyword_score }}</td>
+                          <td>
+                                {% if word.keyword_score <= 35 %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD2525"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% elif word.keyword_score <= 60 %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD801D"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% else %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #45892C"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% endif %}
+                                <div class='a1_ratio'>{{ word.keyword_score }}%</div>
+                          </td>
                         </tr>
                     {% endfor %}
                   </tbody>
@@ -84,12 +102,12 @@
      <div class="neg_keyword-rank-table">
         <div class="card">
             <div class="card-body">
-                <h4>이 상품의 단점</h4>
+                <h4>이 상품은 이게 아쉬워요!</h4>
                 부정적인 키워드가 {{neg_keyword_cnt}} 개가 있습니다.
                 <table class="table">
                   <thead>
                     <tr>
-                      <th scope="col">만족도</th>
+                      <th scope="col">부정적</th>
                       <th scope="col">키워드</th>
                       <th scope="col">키워드별 만족도</th>
                     </tr>
@@ -99,7 +117,16 @@
                         <tr>
                           <th scope="row">{{ forloop.counter }}위</th>
                           <td>{{ word.keyword }}</td>
-                          <td>{{ word.keyword_score }}</td>
+                          <td>
+                                {% if word.keyword_score <= 35 %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD2525"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% elif word.keyword_score <= 60 %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD801D"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% else %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #45892C"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% endif %}
+                                <div class='a1_ratio'>{{ word.keyword_score }}%</div>
+                          </td>
                         </tr>
                     {% endfor %}
                   </tbody>
