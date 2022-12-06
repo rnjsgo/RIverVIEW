@@ -3,40 +3,16 @@ import re
 from urllib.request import urlopen
 import requests
 from bs4 import BeautifulSoup
-from multiprocessing import Pool
-from functools import partial
 import pandas as pd
 import numpy as np
-from konlpy.tag import Mecab
-import gensim
-from sklearn.metrics.pairwise import cosine_similarity
-from collections import defaultdict
+
 
 import os
 from pathlib import Path
 from PIL import Image
-import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-
-mecab = Mecab()
-#word2vec_model = gensim.models.Word2Vec.load('word2vec_by_mecab.model')
-containers = set(['NNG', 'NNP', 'NNB', 'NNBC', 'NR', 'NP', 'VV', 'VA', 'VX', 'VCP', 'VCN', 'MM'])
-stop_words = set(['JKC', 'JKG', 'JKO', 'JKB', 'JKV', 'JKQ', 'JX', 'JC'])
-useless_NNG = set(['만족', '구입', '구매', '생각', '때', '주문', '정도', '느낌', '맘', '마음', '상품', '제품', '물건'])
-# con = pd.read_csv("word_vector.csv", usecols=['0', 'total_value'])
-# word_index = set(con['0'].to_list())
-# con = np.array(con)
-# weights = np.load('weights.npy', allow_pickle=True)
-hangul = re.compile('[^0-9a-zA-Z가-힣\s]')
-sss_compile = re.compile('[^0-9a-zA-Z가-힣\s]')
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
-
-
-def make_score(x):
-    return 0 if x < -2.16 else (1 if x >= 1.84 else (x + 0.16) / 4 + 0.5)
-
-
 def Crawling(product_num, merchant_num, store, pageNo,temp):
 
     try:
@@ -88,8 +64,6 @@ def start_crawling(product_num, url=None):
                 product_num = re.sub('[^0-9]', '', detail.split(':')[2].replace('"', ''))
                 break
 
-        product_info = soup.find_all('script')[0].text.split(',')
-
 
         product_name = soup.find('h3', attrs={'class': '_3oDjSvLwq9 _copyable'}).text.strip()
         img_src = soup.find('div', attrs={'class': '_23RpOU6xpc'}).find('img')['src']
@@ -105,7 +79,7 @@ def start_crawling(product_num, url=None):
 
         print(temp)
         review_data = pd.DataFrame(temp,columns=['review'])
-        return review_data
+        return review_data, url,product_name,img_src
 
 
 

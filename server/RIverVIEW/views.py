@@ -3,8 +3,6 @@ from .models import ProductModel,  ProductKeyword
 from RIverVIEW.MakeData.functions import *
 from RIverVIEW.MakeData.make_data import *
 
-# from viz_trend import *
-
 def foward_home(request):
     if request.method == 'GET':
         return render(request, 'RIverVIEW/main.html')
@@ -79,7 +77,12 @@ def search(request):
 
             else:
                 if 'naver' in url:
-                    temp=start_crawling(product_num, url)
+                    temp,url,product_name,img_src=start_crawling(product_num, url)
+                    product=ProductModel(product_url=url,
+                                         product_name=product_name,
+                                         product_num=product_num,
+                                         img_src=img_src)
+                    product.save()
                     keyword, keyword_example, key_score, key_freq = make_final_data(total_data=temp, col_name='review',
                                                                                     limit_size=200, product_name='', T_DEBUG=1)
                     for word in keyword:
