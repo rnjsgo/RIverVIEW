@@ -81,13 +81,14 @@ def search(request):
                 if 'naver' in url:
                     temp=start_crawling(product_num, url)
                     keyword, keyword_example, key_score, key_freq = make_final_data(total_data=temp, col_name='review',
-                                                                                    limit_size=200, product_name='', T_DEBUG=0)
+                                                                                    limit_size=200, product_name='', T_DEBUG=1)
                     for word in keyword:
                         productKeyword=ProductKeyword(product_num=product_num,
                                                       keyword=word,
                                                       review=keyword_example[word],
                                                       keyword_score=key_score[word],
-                                                      keyword_frequency=key_freq[word])
+                                                      keyword_frequency=key_freq[word]
+                                                      )
                         productKeyword.save()
                     return redirect('/details/{}/'.format(product_num))
 

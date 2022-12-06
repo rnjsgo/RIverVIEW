@@ -3,14 +3,17 @@ from konlpy.tag import Mecab
 import pandas as pd
 import numpy as np
 import re
+from pathlib import Path
+import os
+
 
 #windows면  0, 유닉스계열 1
 __OS_MODE = 1
-
+BASE_DIR = Path(__file__).resolve().parent
 stopwords = set(['JKC', 'JKG', 'JKO', 'JKB', 'JKV', 'JKQ', 'JX', 'JC'])
 get_words = set(['NNG','NNP','VV','VA',])
 useless_word = set(['만족', '구입', '구매', '생각', '때', '주문', '정도', '느낌', '맘', '마음', '상품', '제품', '물건','아서','어서','해요','감사','세요','기대','모르','예요', '사용','후기','빠르','괜찮','리뷰','처음','부분'])
-useless_word_dic = pd.read_csv('/Users/sun/Desktop/캡스톤/RIverVIEW/repository/server/RIverVIEW/MakeData/load/stop_word.csv')
+useless_word_dic = pd.read_csv(os.path.join(BASE_DIR, 'load/stop_word.csv'))
 useless_word_dic = useless_word_dic.values.tolist()
 tmp = []
 for w in useless_word_dic:

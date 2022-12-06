@@ -105,8 +105,7 @@ def start_crawling(product_num, url=None):
 
         print(temp)
         review_data = pd.DataFrame(temp,columns=['review'])
-        review_data.to_csv('/Users/sun/Desktop/data.csv')
-        return temp
+        return review_data
 
 
 

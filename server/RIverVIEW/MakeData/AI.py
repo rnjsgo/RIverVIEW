@@ -12,19 +12,23 @@ import numpy as np
 
 from .data_preprocess import *
 from .time_check import *
+from pathlib import Path
+import os
 
 NOT_IN_W2V = -999999
-_T_DEBUG = 0
+_T_DEBUG = 1
 
 _t_debug = time_chk('모델 로드', _T_DEBUG)
 _start = _t_debug.start()
 #model load
-model_only_reviewdata = gensim.models.Word2Vec.load('/Users/sun/Desktop/캡스톤/RIverVIEW/repository/server/RIverVIEW/MakeData/load/only_review.model')
+BASE_DIR = Path(__file__).resolve().parent
+
+model_only_reviewdata = gensim.models.Word2Vec.load(os.path.join(BASE_DIR, 'load/only_review.model'))
 w2v = model_only_reviewdata.wv
 
-GRU_model = tf.keras.models.load_model('/Users/sun/Desktop/캡스톤/RIverVIEW/repository/server/RIverVIEW/MakeData/load/GRU_Model.h5', compile=False)
+GRU_model = tf.keras.models.load_model(os.path.join(BASE_DIR, 'load/GRU_Model.h5'), compile=False)
 GRU_tokenizer = Tokenizer()
-with open('/Users/sun/Desktop/캡스톤/RIverVIEW/repository/server/RIverVIEW/MakeData/load/GRU_tokenizer.pickle', 'rb') as handle:
+with open(os.path.join(BASE_DIR, 'load/GRU_tokenizer.pickle'), 'rb') as handle:
     GRU_tokenizer = pickle.load(handle)
 _t_debug.eend(_start, _t_debug.end())
 
