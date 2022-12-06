@@ -51,7 +51,6 @@ def Crawling(product_num, merchant_num, store, pageNo,temp):
                 store, pageNo, merchant_num, product_num)  # REVIEW_RANKING
         else:
             url = ''
-        print(url)
         response = urlopen(url)
         json_data = json.load(response)['contents']
         for rev in json_data:
@@ -107,12 +106,13 @@ def start_crawling(product_num, url=None):
         print(temp)
         review_data = pd.DataFrame(temp,columns=['review'])
         review_data.to_csv('/Users/sun/Desktop/data.csv')
+        return temp
 
 
 
 def make_wordcloud(words, filename):
     BASE_DIR = Path(__file__).resolve().parent
-    STATIC_DIR = os.path.join(BASE_DIR, 'static')
+    STATIC_DIR = os.path.join(BASE_DIR, '../../static')
     filename = STATIC_DIR + '/image/wordcloud/'+filename
     fontpath = STATIC_DIR + '/fonts/jua.ttf'
     mask = np.array(Image.open(STATIC_DIR+'/image/circle.png'))

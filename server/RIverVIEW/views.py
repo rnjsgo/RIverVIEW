@@ -1,17 +1,16 @@
-from functions import *
 from django.shortcuts import render, redirect
 from .models import ProductModel,  ProductKeyword
-import re
-from functions import *
+from RIverVIEW.MakeData.functions import *
+from RIverVIEW.MakeData.make_data import *
+
 # from viz_trend import *
-from collections import Counter, defaultdict
 
 def foward_home(request):
     if request.method == 'GET':
         return render(request, 'RIverVIEW/main.html')
 
-def view_details(request, product_id):
-    product = ProductModel.objects.get(product_num= product_id)
+def view_details(request, product_num):
+    product = ProductModel.objects.get(product_num= product_num)
     result_keyword=[]
     pos_keyword = []
     neg_keyword = []
@@ -21,7 +20,7 @@ def view_details(request, product_id):
     ai_score=0
 
     # 해당 상품의 키워드 처리
-    for keyword in ProductKeyword.objects.filter(product_id= product_id):
+    for keyword in ProductKeyword.objects.filter(product_num= product_num):
         score=keyword.keyword_score
         frequency=keyword.keyword_frequency
         name=keyword.keyword
@@ -50,7 +49,7 @@ def view_details(request, product_id):
     product.product_score=ai_score
     product.save()
 
-    make_wordcloud(keywords, str(product_id))
+    make_wordcloud(keywords, str(product_num))
 
     pos_keyword.sort(key=lambda x: x.keyword_score,reverse=True)
     neg_keyword.sort(key=lambda x: x.keyword_score)
@@ -78,69 +77,22 @@ def search(request):
             if url == '':
                 return render(request, 'RIverVIEW/main.html')
 
-            # 이 부분은 전에 분석했던 상품들 db에 저장되어 있으면 그걸로 분석 하겠다는 뜻 같음. 꼭 필요한지 잘 모르겠음
-            # elif ProductModel.objects.filter(product_num=product_num).exists():
-            #     search_product = ProductModel.objects.get(product_num=product_num)
-            #     search_product.search_value += 1
-            #     search_product.save()
-            #     id = search_product.id
-            #     return redirect('/modal/{}/'.format(id))
-
-            # 크롤링
-
-            # tem_data, pre_product_name, img_src, price, categories, result, keyword, keyword_ratio = lets_do_crawling(
-            #     site, product_num, url)
             else:
                 if 'naver' in url:
-                    start_crawling(product_num, url)
-                else: # 지원하지 않는 URL 형식
+                    temp=start_crawling(product_num, url)
+                    keyword, keyword_example, key_score, key_freq = make_final_data(total_data=temp, col_name='review',
+                                                                                    limit_size=200, product_name='', T_DEBUG=0)
+                    for word in keyword:
+                        productKeyword=ProductKeyword(product_num=product_num,
+                                                      keyword=word,
+                                                      review=keyword_example[word],
+                                                      keyword_score=key_score[word],
+                                                      keyword_frequency=key_freq[word])
+                        productKeyword.save()
+                    return redirect('/details/{}/'.format(product_num))
+
+                else:
                     return render(request, 'RIverVIEW/main.html',  {'first': first})
 
-                # 상품 이름 전처리
-                # product_name = []
-                # for sen in pre_product_name.split():
-                #     if '[' in sen or ']' in sen or '/' in sen:
-                #         pass
-                #     else:
-                #         product_name.append(sen)
-                # product_name = ' '.join(product_name).strip()
-                #
-                # xai_before_text = tem_data['xai_before_text']
-                # xai_value = tem_data['xai_value']
-                # xai_positive_negative = tem_data['xai_positive_negative']
-                # dates = tem_data['date']
-                # product = ProductModel.objects.create(product_url=url, product_name=product_name,
-                #                                       img_src=img_src, price=price,
-                #                                       categories=categories, product_num=product_num, search_value=1)
-                # product_score_list = []
-                # for index, row in tem_data.iterrows():
-                #     review_model = ReviewModel()
-                #     word_list = keyword_in_review(row['review'], keyword)
-                #     result_words = ''
-                #     if word_list:
-                #         result_words = '#' + " #".join(word_list).strip()
-                #     review_model.keywords = result_words
-                #     review_model.product_id = product
-                #     review_model.review = " ".join(xai_before_text[index])
-                #     tmp_score = xai_positive_negative[index]
-                #     review_model.score = tmp_score
-                #     product_score_list.append(tmp_score)
-                #     review_model.morph = " ".join(xai_before_text[index])
-                #     review_model.xai_vale = " ".join([*map(lambda x: str(x), xai_value[index])])
-                #     review_model.date = dates[index]
-                #     review_model.save()
-                # product.pos_neg_rate = int(sum([1 for i in product_score_list if i > 5]) * 100 / (index + 1))
-                # product.total_value = round(sum(product_score_list) / (index + 1), 1)
-                # product.save()
-                #
-                # for word, sentence in result.items():
-                #     product_keyword = ProductKeyword()
-                #     product_keyword.product_id = product
-                #     product_keyword.keyword = word
-                #     product_keyword.summarization = sentence
-                #     product_keyword.keyword_positive = round(float(keyword_ratio[word]), 1)
-                #     product_keyword.save()
-
-            return render(request, 'home/main.html')
 
 
