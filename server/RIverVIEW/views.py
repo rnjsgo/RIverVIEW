@@ -1,6 +1,6 @@
 from functions import *
 from django.shortcuts import render, redirect
-from .models import ProductModel, ReviewModel, ProductKeyword
+from .models import ProductModel,  ProductKeyword
 import re
 from functions import *
 # from viz_trend import *
@@ -12,15 +12,44 @@ def foward_home(request):
 
 def view_details(request, product_id):
     product = ProductModel.objects.get(product_num= product_id)
+    result_keyword=[]
     pos_keyword = []
     neg_keyword = []
     keywords = {}
+    result_keyword_cnt=0
+    whole_review=0
+    ai_score=0
+
+    # 해당 상품의 키워드 처리
     for keyword in ProductKeyword.objects.filter(product_id= product_id):
-        if keyword.keyword_score > 50 and len(pos_keyword) <= 3:
+        score=keyword.keyword_score
+        frequency=keyword.keyword_frequency
+        name=keyword.keyword
+        whole_review+=frequency
+
+        #AI score 계산 ('_etc'포함하여 계산)
+        ai_score+=score*frequency
+
+        #키워드 이름이 '_etc'(키워드가 포함되지 않은 리뷰들)에 대해서는 처리하지 않음
+        if name =='_etc':
+            continue
+
+        #만족도가 50이 넘으면 긍정키워드, 글엏지 않으면 부정키워드로 구분
+        if score > 50 :
             pos_keyword.append(keyword)
-        elif keyword.keyword_score < 50 and len(neg_keyword) <= 3:
+
+        elif score < 50 :
             neg_keyword.append(keyword)
-        keywords[keyword.keyword] = keyword.keyword_frequency
+
+        keywords[name] = frequency #워드클라우드를 만들기 위한 딕셔너리
+        result_keyword.append(keyword)  #보여줄 키워드를 제한하기 위해 새로 만든 리스트
+        result_keyword_cnt+=1
+
+    ai_score/=whole_review
+    ai_score=round(ai_score,1)
+    product.product_score=ai_score
+    product.save()
+
     make_wordcloud(keywords, str(product_id))
 
     pos_keyword.sort(key=lambda x: x.keyword_score,reverse=True)
@@ -28,11 +57,12 @@ def view_details(request, product_id):
 
     context = {
         "product": product,
-        "neg_keyword": neg_keyword[:5],
-        "neg_keyword_cnt": len(neg_keyword[:5]),
-        "pos_keyword": pos_keyword[:5],
-        "pos_keyword_cnt": len(pos_keyword[:5]),
-        "review": ReviewModel.objects.get(product_id=product_id)
+        "neg_keyword": neg_keyword[:3],
+        "neg_keyword_cnt": len(neg_keyword[:3]),
+        "pos_keyword": pos_keyword[:3],
+        "pos_keyword_cnt": len(pos_keyword[:3]),
+        "result_keyword":result_keyword[:(result_keyword_cnt//2)],
+        "result_keyword_cnt":result_keyword_cnt//2
     }
     return render(request, 'RiverView/product_details.html',context)
 
