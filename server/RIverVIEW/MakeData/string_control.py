@@ -107,7 +107,7 @@ def get_keyword(df: pd.DataFrame, product_name, col='review', size=_DEFAULT_SIZE
                 # 추가한 키워드와 비슷한 단어 제거 ->  그렇게 효과적이지 못한것같음
                 if product_sim_flag:
                     for keyword in final_keyword.keys():
-                        if w2v.similarity(word, keyword) > 0.9:
+                        if get_word_similarity(word, keyword) > 0.9:
                             keyword_flag = False
 
             if product_sim_flag and keyword_flag:
@@ -235,6 +235,8 @@ def make_keyword_dataframe(keyword=[], data=pd.DataFrame(), col='review', size=_
                 keyword_score[w] = 0
             else:
                 keyword_score[w] = keyword_score_sum[w] / keyword_freq[w]
+                if keyword_score[w] > 100:
+                    keyword_score[w] = 100
     else:
         for w in keyword_list:
             keyword_score_sum[w] = ret_sentence_keyword[w].sum()
@@ -242,6 +244,8 @@ def make_keyword_dataframe(keyword=[], data=pd.DataFrame(), col='review', size=_
                 keyword_score[w] = 0
             else:
                 keyword_score[w] = keyword_score_sum[w] / keyword_freq[w]
+                if keyword_score[w] > 100:
+                    keyword_score[w] = 100
     return ret_sentence_keyword, keyword_score_sum, keyword_freq, keyword_score
 
 
@@ -295,7 +299,7 @@ def get_keyword_example(data: pd.DataFrame, col='review', key_score={}, size=_DE
                             }
                         elif is_same_opinion(key_score[key], sentence_score, 10):
                             review_score = get_sentence_score(total_data.loc[i, col])
-                            if is_same_opinion(key_score[key], review_score, 10):
+                            if is_same_opinion(key_score[key], review_score, 20):
                                 find_example = True
                                 example_sentece[w] = {
                                     'original_review': total_data.loc[i, col],

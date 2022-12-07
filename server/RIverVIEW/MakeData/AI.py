@@ -21,14 +21,14 @@ _T_DEBUG = 1
 _t_debug = time_chk('모델 로드', _T_DEBUG)
 _start = _t_debug.start()
 #model load
-BASE_DIR = Path(__file__).resolve().parent
 
-model_only_reviewdata = gensim.models.Word2Vec.load(os.path.join(BASE_DIR, 'load/only_review.model'))
+
+model_only_reviewdata = gensim.models.Word2Vec.load(os.path.join(Path(__file__).resolve().parent, 'load/only_review.model'))
 w2v = model_only_reviewdata.wv
 
-GRU_model = tf.keras.models.load_model(os.path.join(BASE_DIR, 'load/GRU_Model.h5'), compile=False)
+GRU_model = tf.keras.models.load_model(os.path.join(Path(__file__).resolve().parent, 'load/GRU_Model.h5'), compile=False)
 GRU_tokenizer = Tokenizer()
-with open(os.path.join(BASE_DIR, 'load/GRU_tokenizer.pickle'), 'rb') as handle:
+with open(os.path.join(Path(__file__).resolve().parent, 'load/GRU_tokenizer.pickle'), 'rb') as handle:
     GRU_tokenizer = pickle.load(handle)
 _t_debug.eend(_start, _t_debug.end())
 

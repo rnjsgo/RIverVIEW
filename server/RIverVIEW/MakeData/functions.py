@@ -16,16 +16,25 @@ from tqdm import tqdm
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
 def Crawling(product_num, merchant_num, store, pageNo):
-
+    #REVIEW_CREATE_DATE_DESC, REVIEW_RANKING
+    sort_type = 'REVIEW_RANKING'
+    if pageNo %4 == 0:
+        sort_type = 'REVIEW_RANKING'
+    elif pageNo %4 == 1:
+        sort_type = 'REVIEW_SCORE_ASC'
+    elif pageNo %4 == 2:
+        sort_type = 'REVIEW_SCORE_DESC'
+    else:
+        sort_type = 'REVIEW_CREATE_DATE_DESC'
     try:
         if store == 'shopping':
-            url = 'https://smartstore.naver.com/i/v1/reviews/paged-reviews?page={}&pageSize=10&merchantNo={}&originProductNo={}&sortType=REVIEW_RANKING'.format(
+            url = ('https://smartstore.naver.com/i/v1/reviews/paged-reviews?page={}&pageSize=10&merchantNo={}&originProductNo={}&sortType='+sort_type).format(
                  pageNo, merchant_num, product_num)  # REVIEW_RANKING
         elif store == 'smartstore':
-            url = 'https://{}.naver.com/i/v1/reviews/paged-reviews?page={}&pageSize=10&merchantNo={}&originProductNo={}&sortType=REVIEW_RANKING'.format(
+            url = ('https://{}.naver.com/i/v1/reviews/paged-reviews?page={}&pageSize=10&merchantNo={}&originProductNo={}&sortType='+sort_type).format(
                 store, pageNo, merchant_num, product_num)  # REVIEW_RANKING
         elif store == 'brand':
-            url = 'https://{}.naver.com/n/v1/reviews/paged-reviews?page={}&pageSize=10&merchantNo={}&originProductNo={}&sortType=REVIEW_RANKING'.format(
+            url = ('https://{}.naver.com/n/v1/reviews/paged-reviews?page={}&pageSize=10&merchantNo={}&originProductNo={}&sortType='+sort_type).format(
                 store, pageNo, merchant_num, product_num)  # REVIEW_RANKING
         else:
             url = ''
@@ -63,8 +72,15 @@ def start_crawling(product_num, url=None):
 
         #상품 번호 얻기
         for detail in product_detail:
-            if '"sellerImmediateDiscountPolicyNo"' in detail:
+            if '"originProductNo"' in detail:
+                product_num = re.sub('[^0-9]', '', detail.split(':')[1].replace('"', ''))
+                if product_num == '':
+                    continue
+                break
+            elif '"sellerImmediateDiscountPolicyNo"' in detail:
                 product_num = re.sub('[^0-9]', '', detail.split(':')[2].replace('"', ''))
+                if product_num == '':
+                    continue
                 break
 
 
@@ -72,11 +88,12 @@ def start_crawling(product_num, url=None):
         img_src = soup.find('div', attrs={'class': '_23RpOU6xpc'}).find('img')['src']
 
 
-        pool = Pool(8)
+        pool = Pool(2)
         func = partial(Crawling, product_num,merchant_num,store)
         temp= pool.map(func, range(1, 21))
         pool.close()
         pool.join()
+        temp = list(filter(None, temp))
         # for page in tqdm(range(1,21)):
         #     temp=Crawling(product_num,merchant_num,store,page,temp)
 
@@ -84,17 +101,16 @@ def start_crawling(product_num, url=None):
         # 네이버쇼핑 페이지에서는 한페이지에 리뷰 20개, JSON은 한페이지에 리뷰 10개 저장
         #그래서 리뷰 10페이지까지 보고싶다하면 20페이지까지로 설정해야 다 가져올수 잇음
         temp=sum(temp,[])
-        print(temp)
         review_data = pd.DataFrame(temp,columns=['review'])
         return review_data, url,product_name,img_src
 
 
 
 def make_wordcloud(words, filename):
-    BASE_DIR = Path(__file__).resolve().parent
-    STATIC_DIR = os.path.join(BASE_DIR, '../../static')
-    filename = STATIC_DIR + '/image/wordcloud/'+filename
-    fontpath = STATIC_DIR + '/fonts/jua.ttf'
-    mask = np.array(Image.open(STATIC_DIR+'/image/circle.png'))
+    base_dir = Path(__file__).resolve().parent
+    static_dir = os.path.join(base_dir, '../../static')
+    filename = static_dir + '/image/wordcloud/'+filename
+    fontpath = static_dir + '/fonts/jua.ttf'
+    mask = np.array(Image.open(static_dir+'/image/circle.png'))
     wordcloud = WordCloud(font_path=fontpath, mask= mask).generate_from_frequencies(words)
     wordcloud.to_file(filename+'.png')
