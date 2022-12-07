@@ -74,13 +74,18 @@ def get_keyword(df: pd.DataFrame, product_name, col = 'review', size = _DEFAULT_
 
         product_sim_flag = True
         for i in range(len(product_name_tok)):
-            if product_name_tok[i] == w:
-                continue
+            if w == product_name_tok[i]:
+                product_sim_flag = False
             sim = get_word_similarity(w, product_name_tok[i]) 
             if sim >= _SAMELITY_: #제목이랑 같은 단어는 지우겠다.
                 product_sim_flag = False
             elif sim == NOT_IN_W2V: #w2v에 없는 단어인 경우
                 product_sim_flag = False
+            if product_sim_flag == False:
+                print('removed---------------------------------')
+                print(w)
+                print(product_name_tok[i])
+                print('----------------------------------------')
 
         keyword_flag = True 
         ''' 
@@ -99,6 +104,9 @@ def get_keyword(df: pd.DataFrame, product_name, col = 'review', size = _DEFAULT_
     #최종 추출 단어 반환
     ret = sorted(final_keyword.items(), key=lambda x:x[1], reverse=True)
     ret = [w for w,r in ret]
+    print('keyword---------------------------------')
+    print(ret)
+    print('----------------------------------------')
     return ret
 
 #사용안함
