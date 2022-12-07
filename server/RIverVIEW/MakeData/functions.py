@@ -5,16 +5,17 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
-
-
+from functools import partial
+from multiprocessing import Pool
 import os
 from pathlib import Path
 from PIL import Image
 from wordcloud import WordCloud
 from tqdm import tqdm
+
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
-def Crawling(product_num, merchant_num, store, pageNo,temp):
+def Crawling(product_num, merchant_num, store, pageNo):
 
     try:
         if store == 'shopping':
@@ -30,12 +31,13 @@ def Crawling(product_num, merchant_num, store, pageNo,temp):
             url = ''
         response = urlopen(url)
         json_data = json.load(response)['contents']
+        temp=[]
+
         for rev in json_data:
             if rev['reviewContent']:
                 review = rev['reviewContent'].replace("\n", " ")
-                date = rev['createDate'].split('T')[0]
-                date = date.replace("-", ".")
                 temp.append(review)
+
         return temp
 
     except:
@@ -69,15 +71,20 @@ def start_crawling(product_num, url=None):
         product_name = soup.find('h3', attrs={'class': '_3oDjSvLwq9 _copyable'}).text.strip()
         img_src = soup.find('div', attrs={'class': '_23RpOU6xpc'}).find('img')['src']
 
-        temp=[]
-        for page in tqdm(range(1,21)):
-            temp=Crawling(product_num,merchant_num,store,page,temp)
+
+        pool = Pool(8)
+        func = partial(Crawling, product_num,merchant_num,store)
+        temp= pool.map(func, range(1, 21))
+        pool.close()
+        pool.join()
+        # for page in tqdm(range(1,21)):
+        #     temp=Crawling(product_num,merchant_num,store,page,temp)
 
         # pool.map을 사용하기위해 매개변수가 하나인 함수로 만들기 위해 새로 함수 생성
         # 네이버쇼핑 페이지에서는 한페이지에 리뷰 20개, JSON은 한페이지에 리뷰 10개 저장
         #그래서 리뷰 10페이지까지 보고싶다하면 20페이지까지로 설정해야 다 가져올수 잇음
-
-
+        temp=sum(temp,[])
+        print(temp)
         review_data = pd.DataFrame(temp,columns=['review'])
         return review_data, url,product_name,img_src
 
