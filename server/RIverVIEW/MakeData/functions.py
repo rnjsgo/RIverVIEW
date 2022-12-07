@@ -72,9 +72,9 @@ def start_crawling(product_num, url=None):
         for page in range(1,21):
             temp=Crawling(product_num,merchant_num,store,page,temp)
 
-        #pool.map을 사용하기위해 매개변수가 하나인 함수로 만들기 위해 새로 함수 생성
-      # 네이버쇼핑 페이지에서는 한페이지에 리뷰 20개, JSON은 한페이지에 리뷰 10개 저장
-      #그래서 리뷰 10페이지까지 보고싶다하면 20페이지까지로 설정해야 다 가져올수 잇음
+        # pool.map을 사용하기위해 매개변수가 하나인 함수로 만들기 위해 새로 함수 생성
+        # 네이버쇼핑 페이지에서는 한페이지에 리뷰 20개, JSON은 한페이지에 리뷰 10개 저장
+        #그래서 리뷰 10페이지까지 보고싶다하면 20페이지까지로 설정해야 다 가져올수 잇음
 
 
         review_data = pd.DataFrame(temp,columns=['review'])
