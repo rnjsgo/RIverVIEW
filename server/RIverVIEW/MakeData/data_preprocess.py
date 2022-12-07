@@ -32,7 +32,6 @@ elif __OS_MODE == 1:
 ####################################################################################
 #                             데이터프레임 관련 함수
 ####################################################################################
-
 def dataframe_cut(df: pd.DataFrame, size):
     data_frame = df.copy()
     return data_frame.truncate(before=0,after=size)
@@ -82,15 +81,22 @@ def mecab_pos(sentence: str):
     return mecab.pos(sentence)
 
 #메캅 형태소 분리기
+
+def mecab_tokenizer(raw,pos=get_words, stopword=stopwords):
+    return [word for word, tag in mecab_pos(raw) \
+        if len(word) > 1 and\
+            tag in pos and \
+            tag not in stopword]
+
 #기본적으로 형태를 분리하나
 #   한글자 미만인 형태소,
 #   미리 지정해두지 않은 단어,
 #   미리 설정한 의미없는 단어를 제외하고
 #   형태소를 분ㄹ하여 반환
-def mecab_tokenizer(raw, pos=get_words, stopword=stopwords): 
+def mecab_get_useful_word(raw, pos=get_words, stopword=stopwords):
     return [word for word, tag in mecab_pos(raw) \
-        if len(word) > 1 and \
-            tag in pos and \
+            if len(word) > 1 and \
+                tag in pos and \
                 tag not in stopword and\
                     not_useless(word)]
 

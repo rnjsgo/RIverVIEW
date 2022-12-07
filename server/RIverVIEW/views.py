@@ -97,7 +97,7 @@ def search(request):
 
                         productKeyword=ProductKeyword(product_reference_id=int(product_num),
                                                       keyword=word,
-                                                      review=keyword_example[word],
+                                                      review=keyword_example[word]['original_review'],
                                                       keyword_score=round(key_score[word],1),
                                                       keyword_frequency=key_freq[word]
                                                       )
