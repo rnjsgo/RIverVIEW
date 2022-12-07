@@ -68,18 +68,20 @@ def get_keyword(df: pd.DataFrame, product_name, col = 'review', size = _DEFAULT_
     cnt = keyword_cnt
     #키워드중, 상품과 관련된 정보는 추출하지 않기
     product_name_tok = mecab_tokenizer(product_name)
-
+    product_name_tok = [w.strip() for w in product_name_tok]
     for w, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True):
         w = w.strip()
 
         product_sim_flag = True
         for i in range(len(product_name_tok)):
+            if product_name_tok[i] == w:
+                continue
             sim = get_word_similarity(w, product_name_tok[i]) 
             if sim >= _SAMELITY_: #제목이랑 같은 단어는 지우겠다.
                 product_sim_flag = False
             elif sim == NOT_IN_W2V: #w2v에 없는 단어인 경우
                 product_sim_flag = False
-            
+
         keyword_flag = True 
         ''' 
         #추가한 키워드와 비슷한 단어 제거 ->  그렇게 효과적이지 못한것같음
@@ -231,10 +233,10 @@ def abs(a, b):
 #data = review 데이터프레임 원본, col = 리뷰가 들어있는 열
 #key_score= 키워드별 점수가 들어있는 딕셔너리, 0번인덱스부터 살펴볼 양
 def get_keyword_example(data: pd.DataFrame, col='review', key_score={}, size=_DEFAULT_SIZE_):
-    example_sentece = {}
-    ret = {}
     total_data = data.copy()
     keyword=[k for k,v in key_score.items()]
+    example_sentece = {}
+    ret = {k:'예시 리뷰가 없습니다.' for k in keyword}
     cnt = 0
     for i in tqdm(total_data.index):
         cnt += 1

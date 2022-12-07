@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import ProductModel,  ProductKeyword
 from RIverVIEW.MakeData.functions import *
 from RIverVIEW.MakeData.make_data import *
-
+from RIverVIEW.MakeData.time_check import *
 def foward_home(request):
     if request.method == 'GET':
         return render(request, 'RIverVIEW/main.html')
@@ -18,7 +18,7 @@ def view_details(request, product_num):
     ai_score=0
 
     # 해당 상품의 키워드 처리
-    for keyword in ProductKeyword.objects.filter(product_num= product_num):
+    for keyword in ProductKeyword.objects.filter(product_reference_id= product_num):
         score=keyword.keyword_score
         frequency=keyword.keyword_frequency
         name=keyword.keyword
@@ -68,8 +68,14 @@ def search(request):
     if request.method == 'POST':
         url= request.POST.get("url", '')
         if '/' in url:
+            T_DEBUG = 1
+            t = time_chk('크롤링 시작', T_DEBUG)
+            st = t.start()
             #url 분리해서 상품번호 따오기
             product_num = url.split('/')[-1].split('?')[0]
+            #시작전 db 초기화
+            ProductKeyword.objects.filter(product_reference_id=int(product_num)).delete()
+            ProductModel.objects.filter(product_num=int(product_num)).delete()
 
             #url 비어있을 때
             if url == '':
@@ -78,15 +84,18 @@ def search(request):
             else:
                 if 'naver' in url:
                     temp,url,product_name,img_src=start_crawling(product_num, url)
+                    t.eend(st,t.end())
+                    temp.to_csv('test.csv')
                     product=ProductModel(product_url=url,
                                          product_name=product_name,
-                                         product_num=product_num,
+                                         product_num=int(product_num),
                                          img_src=img_src)
                     product.save()
                     keyword, keyword_example, key_score, key_freq = make_final_data(total_data=temp, col_name='review',
                                                                                     limit_size=200, product_name='', T_DEBUG=1)
                     for word in keyword:
-                        productKeyword=ProductKeyword(product_num=product_num,
+
+                        productKeyword=ProductKeyword(product_reference_id=int(product_num),
                                                       keyword=word,
                                                       review=keyword_example[word],
                                                       keyword_score=key_score[word],

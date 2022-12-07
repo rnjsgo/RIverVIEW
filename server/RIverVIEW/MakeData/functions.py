@@ -77,7 +77,6 @@ def start_crawling(product_num, url=None):
       #그래서 리뷰 10페이지까지 보고싶다하면 20페이지까지로 설정해야 다 가져올수 잇음
 
 
-        print(temp)
         review_data = pd.DataFrame(temp,columns=['review'])
         return review_data, url,product_name,img_src
 
