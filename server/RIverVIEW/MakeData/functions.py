@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 from PIL import Image
 from wordcloud import WordCloud
+from tqdm import tqdm
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
 def Crawling(product_num, merchant_num, store, pageNo,temp):
@@ -69,7 +70,7 @@ def start_crawling(product_num, url=None):
         img_src = soup.find('div', attrs={'class': '_23RpOU6xpc'}).find('img')['src']
 
         temp=[]
-        for page in range(1,21):
+        for page in tqdm(range(1,21)):
             temp=Crawling(product_num,merchant_num,store,page,temp)
 
         # pool.map을 사용하기위해 매개변수가 하나인 함수로 만들기 위해 새로 함수 생성
