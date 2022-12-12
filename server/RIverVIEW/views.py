@@ -58,8 +58,8 @@ def view_details(request, product_num):
         "neg_keyword_cnt": len(neg_keyword[:3]),
         "pos_keyword": pos_keyword[:3],
         "pos_keyword_cnt": len(pos_keyword[:3]),
-        "result_keyword":result_keyword[:(result_keyword_cnt//2)],
-        "result_keyword_cnt":result_keyword_cnt//2
+        "result_keyword":result_keyword[:(result_keyword_cnt)],
+        "result_keyword_cnt":result_keyword_cnt
     }
     return render(request, 'RiverView/product_details.html',context)
 
@@ -92,7 +92,7 @@ def search(request):
                                          img_src=img_src)
                     product.save()
                     keyword, keyword_example, key_score, key_freq = make_final_data(total_data=temp, col_name='review',
-                                                                                    limit_size=200, product_name=product_name, T_DEBUG=1)
+                                                                                    limit_size=300, product_name=product_name, T_DEBUG=1)
                     for word in keyword:
 
                         productKeyword=ProductKeyword(product_reference_id=int(product_num),

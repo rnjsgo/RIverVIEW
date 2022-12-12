@@ -18,13 +18,9 @@ headers = {
 def Crawling(product_num, merchant_num, store, pageNo):
     #REVIEW_CREATE_DATE_DESC, REVIEW_RANKING
     sort_type = 'REVIEW_RANKING'
-    if pageNo %4 == 0:
+    if pageNo %2== 0:
         sort_type = 'REVIEW_RANKING'
-    elif pageNo %4 == 1:
-        sort_type = 'REVIEW_SCORE_ASC'
-    elif pageNo %4 == 2:
-        sort_type = 'REVIEW_SCORE_DESC'
-    else:
+    elif pageNo %3== 1:
         sort_type = 'REVIEW_CREATE_DATE_DESC'
     try:
         if store == 'shopping':
@@ -84,13 +80,14 @@ def start_crawling(product_num, url=None):
                 break
 
 
+
         product_name = soup.find('h3', attrs={'class': '_3oDjSvLwq9 _copyable'}).text.strip()
         img_src = soup.find('div', attrs={'class': '_23RpOU6xpc'}).find('img')['src']
 
-
+        #주
         pool = Pool(2)
         func = partial(Crawling, product_num,merchant_num,store)
-        temp= pool.map(func, range(1, 21))
+        temp= pool.map(func, range(1, 30))
         pool.close()
         pool.join()
         temp = list(filter(None, temp))

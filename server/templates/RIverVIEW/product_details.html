@@ -37,7 +37,8 @@
                     <tr>
                       <th scope="col" style="width:15%">빈도수</th>
                       <th scope="col" style="width:15%">키워드</th>
-                      <th scope="col" style="width:70%">키워드별 만족도</th>
+                      <th scope="col" style="width:30%">키워드별 만족도</th>
+					  <th scope="col" style="width:40%">실제 리뷰</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -55,6 +56,9 @@
                 {% endif %}
                 <div class='a1_ratio'>{{ word.keyword_score }}%</div>
                           </td>
+						  <td>
+                                "{{word.review}}"
+                            </td>
                         </tr>
                     {% endfor %}
                   </tbody>

@@ -8,7 +8,7 @@ import os
 
 
 #windows면  0, 유닉스계열 1
-__OS_MODE = 0
+__OS_MODE = 1
 
 stopwords = set(['JKC', 'JKG', 'JKO', 'JKB', 'JKV', 'JKQ', 'JX', 'JC'])
 get_words = set(['NNG','NNP','VV','VA',])
@@ -32,14 +32,25 @@ elif __OS_MODE == 1:
 ####################################################################################
 #                             데이터프레임 관련 함수
 ####################################################################################
+def dataframe_make_tokenized_col(df: pd.DataFrame):
+    data = df.copy()
+    data['tokenized_data'] = data['review'].apply(mecab_tokenizer)
+    return data
+
+def dataframe_get_col_to_list(df: pd.DataFrame, col):
+    data = df.copy()
+    ret = data[col].tolist()
+    ret = list(filter(None, ret))
+    return ret
+    
 def dataframe_cut(df: pd.DataFrame, size):
     data_frame = df.copy()
     return data_frame.truncate(before=0,after=size)
 
 #데이터프레임의 문자열의 특수기호등 모두 제거
-def dataframe_str_clean(df: pd.DataFrame, col_name: str):
+def dataframe_make_clean_str_col(df: pd.DataFrame, col_name: str):
     data_frame = df.copy()
-    data_frame[col_name] = data_frame[col_name].apply(clean_str)
+    data_frame['clean_str'] = data_frame[col_name].apply(clean_str)
     return data_frame
 
 #데이터프레임 none값 제거
@@ -117,3 +128,15 @@ def clean_str(text):
     text = re.sub(pattern=pattern, repl='', string=text)
     text = re.sub("\n", repl=' ', string=text)
     return text   
+
+def print_pretty(st, trg):
+    print()
+    print('*'*60)
+    print(st.center(50), end = '\n\n')
+    if  isinstance(trg, dict):
+        for k, v in trg.items():
+            print(k,' : ',v)
+    else:
+        print(trg)
+    print('*'*60)
+    print()
