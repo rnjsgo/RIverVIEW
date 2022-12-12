@@ -8,7 +8,7 @@ import os
 
 
 #windows면  0, 유닉스계열 1
-__OS_MODE = 1
+__OS_MODE = 0
 
 stopwords = set(['JKC', 'JKG', 'JKO', 'JKB', 'JKV', 'JKQ', 'JX', 'JC'])
 get_words = set(['NNG','NNP','VV','VA',])

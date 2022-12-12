@@ -10,11 +10,11 @@ from .AI import *
 from .time_check import *
 
 #같은 단어라면 SAMELITY보다 높아야함
-_SAMELITY_ = 0.90
+_SAMELITY_ = 0.9
 #비슷한 정도
 _SIMILARITY_ = 0.7
 #문장에서 중요한 정도 tfidf수치
-_IMPORTANCE_ = 0.1
+_IMPORTANCE_ = 0.2
 _DEFAULT_SIZE_ = 200
 
 _T_DEBUG = 0
@@ -24,7 +24,7 @@ def get_keyword(df: pd.DataFrame, product_name, wv, col='review'):
     data_frame = df.copy()
     # 리뷰세트마다 tfidf적용해서 중요도 뽑아야함
     tfidfv = TfidfVectorizer(stop_words=stopwords, tokenizer=mecab_tokenizer, \
-                             ngram_range=(1, 3), min_df=2, sublinear_tf=True)
+                             ngram_range=(1, 3), min_df=3, sublinear_tf=True)
     tfidf = tfidfv.fit_transform(data_frame[col])
 
     word2id = dict()
@@ -33,22 +33,23 @@ def get_keyword(df: pd.DataFrame, product_name, wv, col='review'):
 
     #문장 랭킹 구하기
     entire_txt = data_frame[col].apply(normalize)
-    min_count = 2
+    min_count = 3
     max_length = 10
     wordrank_extractor = KRWordRank(min_count, max_length)
 
     beta = 0.85  # PageRank의 decaying factor beta
     max_iter = 10
     keywords, rank, graph = wordrank_extractor.extract(entire_txt, beta, max_iter)
-    keyword = []
+    keyword = {}
 
     #tfidf를 이용해서 중요한 단어만 추출
     for i in range(len(entire_txt)):
         for w,r in sorted(keywords.items(), key=lambda x: x[1], reverse=True):
             if w in word2id and w in wv:
                     if tfidf[i, word2id[w]] > _IMPORTANCE_:
-                        keyword.append(w)
-        
+                        keyword[w] = 0
+                        
+    keyword = [k for k in keyword.keys()]
     # 최종 키워드 추출
     final_keyword = {}
     # 개수는 루트 데이터개수 / 2
@@ -69,22 +70,20 @@ def get_keyword(df: pd.DataFrame, product_name, wv, col='review'):
                 product_sim_flag = False
             elif sim == NOT_IN_W2V:  # w2v에 없는 단어인 경우
                 product_sim_flag = False
-
         keyword_flag = True
-        ''' 
-        #추가한 키워드와 비슷한 단어 제거 ->  그렇게 효과적이지 못한것같음
+                # 추가한 키워드와 비슷한 단어 제거 ->  그렇게 효과적이지 못한것같음
         if product_sim_flag:
             for keyword in final_keyword.keys():
-                if w2v.similarity(word, keyword) >0.9:
+                if get_word_similarity(w, keyword, wv) > _SAMELITY_:
                     keyword_flag = False
-        '''
-        if product_sim_flag and keyword_flag:
+                            
+        if product_sim_flag and keyword_flag and not_useless(w):
             final_keyword[w] = cnt
             cnt -= 1
         if cnt < 0:
             break
     if cnt == keyword_cnt:  # 키워드가 없는경우, 제목과 완전 같은 키워드를 제외하고 비슷한 단어만 제거
-        for w, r in keyword:
+        for w in keyword:
             w = w.strip()
 
             product_sim_flag = True
@@ -96,10 +95,10 @@ def get_keyword(df: pd.DataFrame, product_name, wv, col='review'):
                 # 추가한 키워드와 비슷한 단어 제거 ->  그렇게 효과적이지 못한것같음
                 if product_sim_flag:
                     for keyword in final_keyword.keys():
-                        if get_word_similarity(word, keyword, wv) > 0.9:
+                        if get_word_similarity(w, keyword, wv) > _SAMELITY_:
                             keyword_flag = False
 
-            if product_sim_flag and keyword_flag:
+            if product_sim_flag and keyword_flag and not_useless(w):
                 final_keyword[w] = cnt
                 cnt -= 1
             if cnt < 0:
@@ -148,16 +147,14 @@ def get_single_sentence(document=''):
 # 문장이 가지고 있는 키워드를 반환
 # 문장 내에서 비슷한 키워드가 발견되면 그 키워드를 반환
 def get_contain_keyword(word, sentence, wv):
-    sentence_list = mecab_tokenizer(sentence)
-    for w in sentence_list:
+    for w in sentence:
         if get_word_similarity(word, w,wv) >= _SIMILARITY_:
             return word
     return '_etc'
 
 
 def get_contain_same_keyword(word, sentence, wv):
-    sentence_list = mecab_tokenizer(sentence)
-    for w in sentence_list:
+    for w in sentence:
         if get_word_similarity(word, w, wv) >= _SAMELITY_:
             return word
     return '_etc'
@@ -185,38 +182,43 @@ def make_keyword_dataframe(keyword=[], data=pd.DataFrame(), col='review', size=_
     is_NOT_contain_keyword = True
     word = ''
 
-    idx = -1
+
     if not view_single:
-        for review in tqdm(df[col]):
-            idx += 1
-            score = get_sentence_score(review, max_len= max_len)
+        for i in tqdm(df.index):
+            score = get_sentence_score(df.loc[i,col], max_len= max_len)
             is_NOT_contain_keyword = True
 
             for w in keyword:  # 문장에 키워드를 포함하지 않는 키워드는 일단 보지않음.
-                word = get_contain_same_keyword(w, review, wv)
+                word = get_contain_same_keyword(w, df.loc[i,'tokenized_data'], wv)
                 if word != '_etc':  # 지금 보는 문장에 키워드가 존재한다면,
                     is_NOT_contain_keyword = False
-                    ret_sentence_keyword.loc[idx, word] = score
+                    ret_sentence_keyword.loc[i, word] = score
 
             if is_NOT_contain_keyword:  # 문장에 키워드를 포함하고있지 않은 일반 리뷰라면,
-                ret_sentence_keyword.loc[idx, '_etc'] = score
+                ret_sentence_keyword.loc[i, '_etc'] = score
     else:
-        for review in tqdm(df[col]):
-            idx += 1
+        max_len = max(df['len'])
+        for i in range(max_len, 0, -1):
+            if len(df.loc[df['len']>i]) / len(df) >0.95:
+                max_len = i
+                break
+        for i in tqdm(df.index):
             is_NOT_contain_keyword = True
-            review_list = get_single_sentence(review)
+            #score = get_sentence_score(df.loc[i,col], max_len= max_len)
+            review_list = get_single_sentence(df.loc[i,col])
             for sentence in review_list:
                 for w in keyword:  # 문장에 키워드를 포함하지 않는 키워드는 일단 보지않음.
-                    word = get_contain_same_keyword(w, sentence,wv)
-                    score = get_sentence_score(sentence, max_len= max_len)
-                    if word != '_etc':  # 지금 보는 문장에 키워드가 존재한다면,
+                    word = get_contain_same_keyword(w, df.loc[i,'tokenized_data'], wv)
+                    if word != '_etc':  # 지금 보는 문장에 키워드가 존재한다면
+                        score = get_sentence_score(sentence, max_len= max_len)
                         keyword_freq[word] += 1
                         is_NOT_contain_keyword = False
-                        ret_sentence_keyword.loc[idx, word] = score
+                        ret_sentence_keyword.loc[i, word] += score
 
             if is_NOT_contain_keyword:  # 문장에 키워드를 포함하고있지 않은 일반 리뷰라면,
                 keyword_freq['_etc'] += 1
-                ret_sentence_keyword.loc[idx, '_etc'] = score
+                score = get_sentence_score(df.loc[i,col], max_len= max_len)
+                ret_sentence_keyword.loc[i, '_etc'] = score
     
     keyword_score = {}
     if not view_single:
@@ -267,39 +269,51 @@ def get_keyword_example(data: pd.DataFrame, wv, col='review', key_score={}, size
     keyword = [k for k, v in key_score.items()]
     example_sentece = {}
     cnt = 0
-    for w in tqdm(keyword):
-        cnt += 1
-        if cnt > size:
-            break
-
-        for i in total_data.index:
-            if w not in example_sentece:
+    total_data.to_csv('t.csv')
+    for i in tqdm(total_data.index):
+        for w in keyword:
+            if total_data.loc[i,w] != 0:
                 reveiw_sentence = get_single_sentence(total_data.loc[i, col])
                 find_example = False
                 for sentence in reveiw_sentence:
                     if not find_example:
-                        key = get_contain_same_keyword(w, sentence,wv)
+                        key = get_contain_same_keyword(w, mecab_tokenizer(sentence),wv)
                         if key != '_etc':
                             sentence_score = get_sentence_score(sentence, max_len= max_len)
                             review_score = total_data.loc[i, key]
-                            if is_same_opinion(key_score[key], sentence_score, 55) and is_same_opinion(key_score[key], review_score, 55):
+                            if is_same_opinion(key_score[key], sentence_score, 50) and is_same_opinion(key_score[key], review_score, 45):
                                 find_example = True
-
+                            elif abs(key_score[key], sentence_score) < 10 and is_same_opinion(key_score[key], review_score, 55) :
+                                find_example = True
+                        
                             
                             if find_example:
-                                if len(total_data.loc[i, col]) < 80:
+                                if w in example_sentece:
+                                    if abs(example_sentece[w]['sentence_score'],key_score[key]) < abs(sentence_score,key_score[key]):
+                                        find_example=False
+                                        
+                            if find_example: 
+                                if len(total_data.loc[i, col]) < 60:
                                     example_sentece[w] = {
                                         'original_review': total_data.loc[i, col],
                                         'sentence_score': sentence_score,
                                         'reason_sentence': sentence
                                     }
                                 else:
-                                    example_sentece[w] = {
-                                        'original_review': sentence,
+                                    origin = mecab_tokenizer(total_data.loc[i, col][:60])
+                                    if get_contain_same_keyword(w,origin,wv)==w:
+                                        example_sentece[w] = {
+                                        'original_review': total_data.loc[i, col][:60]+'...',
                                         'sentence_score': sentence_score,
                                         'reason_sentence': sentence
-                                    }
-                                break
+                                        }
+                                    else:
+                                        example_sentece[w] = {
+                                            'original_review': total_data.loc[i, col][:55-len(sentence)]+'...(중략)...'+sentence,
+                                            'sentence_score': sentence_score,
+                                            'reason_sentence': sentence
+                                        }
+                                    
     for w in keyword:
         if w not in example_sentece:
             example_sentece[w] = {

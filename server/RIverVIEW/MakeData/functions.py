@@ -84,8 +84,7 @@ def start_crawling(product_num, url=None):
         product_name = soup.find('h3', attrs={'class': '_3oDjSvLwq9 _copyable'}).text.strip()
         img_src = soup.find('div', attrs={'class': '_23RpOU6xpc'}).find('img')['src']
 
-        #주
-        pool = Pool(2)
+        pool = Pool(5)
         func = partial(Crawling, product_num,merchant_num,store)
         temp= pool.map(func, range(1, 30))
         pool.close()

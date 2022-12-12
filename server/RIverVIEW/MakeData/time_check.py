@@ -62,7 +62,7 @@ class p:
             else:
                 return cls.RESET
     @classmethod
-    def rint(cls, s: str, color = 'BLUE',center=True, center_size=80, ch = ' ', end ='\n'):
+    def rint(cls, s: str, color = 'BRIGHT_YELLOW',center=True, center_size=80, ch = ' ', end ='\n'):
         color = cls.COLOR.get_color(color)
         s_copy = s
         if center:
@@ -76,7 +76,7 @@ class p:
         
 
 class time_chk:
-    def __init__(self, s, DEBUG=1, rep_ch = '*', termsize = 60, color = 'BLUE'):
+    def __init__(self, s, DEBUG=1, rep_ch = '*', termsize = 60, color = 'BRIGHT_YELLOW'):
         self.__timeblock = s
         self.__entire_start=0
         self.__start = 0
@@ -144,7 +144,7 @@ class time_chk:
         p.rint(out,center_size=self.__termsize,color=self.__color)
     
     def cut(self, timeblock=''):
-        p.rint(timeblock,center_size=self.__termsize,color=self.__color)
+        p.rint('\n'+str(self.__cnt)+' '+timeblock,center_size=self.__termsize,color=self.__color)
         self.end()
         self.start()
     
