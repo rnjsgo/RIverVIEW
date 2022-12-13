@@ -186,6 +186,8 @@ def make_keyword_dataframe(keyword=[], data=pd.DataFrame(), col='review', size=_
     if not view_single:
         for i in tqdm(df.index):
             score = get_sentence_score(df.loc[i,col], max_len= max_len)
+            if score == -999:
+                continue
             is_NOT_contain_keyword = True
 
             for w in keyword:  # 문장에 키워드를 포함하지 않는 키워드는 일단 보지않음.
@@ -206,44 +208,44 @@ def make_keyword_dataframe(keyword=[], data=pd.DataFrame(), col='review', size=_
             is_NOT_contain_keyword = True
             #score = get_sentence_score(df.loc[i,col], max_len= max_len)
             review_list = get_single_sentence(df.loc[i,col])
+            freq = {w:1 for w in keyword}
             for sentence in review_list:
+                score = get_sentence_score(sentence, max_len= max_len)
+                if score == -999:
+                    continue
                 for w in keyword:  # 문장에 키워드를 포함하지 않는 키워드는 일단 보지않음.
                     word = get_contain_same_keyword(w, df.loc[i,'tokenized_data'], wv)
                     if word != '_etc':  # 지금 보는 문장에 키워드가 존재한다면
-                        score = get_sentence_score(sentence, max_len= max_len)
                         keyword_freq[word] += 1
+                        freq[word] += 1
                         is_NOT_contain_keyword = False
                         ret_sentence_keyword.loc[i, word] += score
+            if is_NOT_contain_keyword == False:
+                for w in keyword:
+                    ret_sentence_keyword.loc[i,w] = ret_sentence_keyword.loc[i,w] / freq[w]
+                    
 
             if is_NOT_contain_keyword:  # 문장에 키워드를 포함하고있지 않은 일반 리뷰라면,
                 keyword_freq['_etc'] += 1
                 score = get_sentence_score(df.loc[i,col], max_len= max_len)
+                if score == -999:
+                    continue
                 ret_sentence_keyword.loc[i, '_etc'] = score
     
     keyword_score = {}
-    if not view_single:
-        for w in keyword_list:
-            keyword_score_sum[w] = ret_sentence_keyword[w].sum()
-            keyword_freq[w] = len(ret_sentence_keyword[ret_sentence_keyword[w] != 0].index)
-            if keyword_freq[w] == 0:
-                del keyword_freq[w]
-                del keyword_score_sum[w]
-                del ret_sentence_keyword[w]
-            else:
-                keyword_score[w] = keyword_score_sum[w] / keyword_freq[w]
-                if keyword_score[w] > 100:
-                    keyword_score[w] = 100
-    else:
-        for w in keyword_list:
-            keyword_score_sum[w] = ret_sentence_keyword[w].sum()
-            if keyword_freq[w] == 0:
-                del keyword_freq[w]
-                del keyword_score_sum[w]
-                del ret_sentence_keyword[w]
-            else:
-                keyword_score[w] = keyword_score_sum[w] / keyword_freq[w]
-                if keyword_score[w] > 100:
-                    keyword_score[w] = 100
+    for w in keyword_list:
+        keyword_score_sum[w] = ret_sentence_keyword[w].sum()
+        keyword_freq[w] = len(ret_sentence_keyword[ret_sentence_keyword[w] != 0].index)
+        if keyword_freq[w] == 0:
+            del keyword_freq[w]
+            del keyword_score_sum[w]
+            del ret_sentence_keyword[w]
+        else:
+            keyword_score[w] = keyword_score_sum[w] / keyword_freq[w]
+            if keyword_score[w] > 100:
+                keyword_score[w] = 100
+    
+    print(keyword_score)
     return ret_sentence_keyword, keyword_score_sum, keyword_freq, keyword_score
 
 
@@ -269,7 +271,6 @@ def get_keyword_example(data: pd.DataFrame, wv, col='review', key_score={}, size
     keyword = [k for k, v in key_score.items()]
     example_sentece = {}
     cnt = 0
-    total_data.to_csv('t.csv')
     for i in tqdm(total_data.index):
         for w in keyword:
             if total_data.loc[i,w] != 0:
@@ -280,6 +281,8 @@ def get_keyword_example(data: pd.DataFrame, wv, col='review', key_score={}, size
                         key = get_contain_same_keyword(w, mecab_tokenizer(sentence),wv)
                         if key != '_etc':
                             sentence_score = get_sentence_score(sentence, max_len= max_len)
+                            if sentence_score == -999:
+                                continue
                             review_score = total_data.loc[i, key]
                             if is_same_opinion(key_score[key], sentence_score, 50) and is_same_opinion(key_score[key], review_score, 45):
                                 find_example = True

@@ -41,18 +41,19 @@ def  make_final_data(total_data: pd.DataFrame, col_name='review', limit_size = 1
     keyword = get_keyword(total_data, product_name, w2v)
     t.cut('키워드 추출')
 
-
+    VIEW_SINGLE = False
     df, score_sum, key_freq, key_score = make_keyword_dataframe(
         keyword= keyword,
         data= total_data,
         col= col_name,
         size=limit_size,
-        view_single=False,
+        view_single=VIEW_SINGLE,
         wv= w2v,
         max_len=max_len
     )
     keyword = [k for k,v in key_score.items()]
     df = pd.concat([total_data['review'],total_data['tokenized_data'],df],axis=1)
+    df.to_csv(product_name+'.csv')
     t.cut('데이터프레임 생성')
     keyword_example = get_keyword_example(
         data= df,
@@ -60,7 +61,7 @@ def  make_final_data(total_data: pd.DataFrame, col_name='review', limit_size = 1
         key_score= key_score,
         size=limit_size,
         wv=w2v
-        )
+        )#
     t.cut('keyword example')
     t.eend(st, t.end())
     return keyword, keyword_example, key_score, key_freq

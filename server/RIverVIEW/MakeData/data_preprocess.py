@@ -12,6 +12,7 @@ __OS_MODE = 0
 
 stopwords = set(['JKC', 'JKG', 'JKO', 'JKB', 'JKV', 'JKQ', 'JX', 'JC'])
 get_words = set(['NNG','NNP',])
+nn_v_words = set(['NNG','NNP','VV','VA',])
 useless_word = set(['만족', '구입', '구매', '생각', '때', '주문', '정도', '느낌', '맘', '마음', '상품', '제품', '물건','아서','어서','해요','감사','세요','기대','모르','예요', '사용','후기','빠르','괜찮','리뷰','처음','부분'])
 useless_word_dic = pd.read_csv(os.path.join( Path(__file__).resolve().parent, 'load/stop_word.csv'))
 useless_word_dic = useless_word_dic.values.tolist()
@@ -93,7 +94,7 @@ def mecab_pos(sentence: str):
 
 #메캅 형태소 분리기
 
-def mecab_tokenizer(raw,pos=get_words, stopword=stopwords):
+def mecab_tokenizer(raw,pos=nn_v_words, stopword=stopwords):
     return [word for word, tag in mecab_pos(raw) \
         if len(word) > 1 and\
             tag in pos and \
@@ -104,7 +105,7 @@ def mecab_tokenizer(raw,pos=get_words, stopword=stopwords):
 #   미리 지정해두지 않은 단어,
 #   미리 설정한 의미없는 단어를 제외하고
 #   형태소를 분ㄹ하여 반환
-def mecab_get_useful_word(raw, pos=get_words, stopword=stopwords):
+def mecab_get_useful_word(raw, pos=nn_v_words, stopword=stopwords):
     return [word for word, tag in mecab_pos(raw) \
             if len(word) > 1 and \
                 tag in pos and \
@@ -113,7 +114,7 @@ def mecab_get_useful_word(raw, pos=get_words, stopword=stopwords):
 
 #형태소분리 -> 다시 이어붙이기
 def tok_concat_str(sentence: str):
-    return ' '.join(mecab_tokenizer(sentence))
+    return ' '.join(mecab_morphs(sentence))
 
 def clean_str(text):
     pattern = '([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)' # E-mail제거

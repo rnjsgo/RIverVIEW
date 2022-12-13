@@ -52,6 +52,8 @@ def get_word_similarity(w1,w2,w2v):
 #0~1사이의 예측값(1: 긍정 0: 부정)을 100을 곱해 반환
 def get_sentence_score(new_sentence, max_len = 80):
     sentence = tok_concat_str(new_sentence)
+    if len(sentence) ==0:
+        return -999
     encoded = GRU_tokenizer.texts_to_sequences([sentence])
     pad_new = pad_sequences(encoded, maxlen = max_len)
     score = float(GRU_model.predict(pad_new, verbose= 0))
