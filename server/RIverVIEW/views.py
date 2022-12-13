@@ -16,9 +16,9 @@ def view_details(request, product_num):
     result_keyword_cnt=0
     whole_review=0
     ai_score=0
-
     # 해당 상품의 키워드 처리
     for keyword in ProductKeyword.objects.filter(product_reference_id= product_num):
+        
         score=keyword.keyword_score
         frequency=keyword.keyword_frequency
         name=keyword.keyword
@@ -58,8 +58,8 @@ def view_details(request, product_num):
         "neg_keyword_cnt": len(neg_keyword[:3]),
         "pos_keyword": pos_keyword[:3],
         "pos_keyword_cnt": len(pos_keyword[:3]),
-        "result_keyword":result_keyword[:(result_keyword_cnt)],
-        "result_keyword_cnt":result_keyword_cnt
+        "result_keyword":result_keyword[:(result_keyword_cnt//2)],
+        "result_keyword_cnt":result_keyword_cnt//2
     }
     return render(request, 'RiverView/product_details.html',context)
 
@@ -85,7 +85,6 @@ def search(request):
                 if 'naver' in url:
                     temp,url,product_name,img_src=start_crawling(product_num, url)
                     t.eend(st,t.end())
-                    temp.to_csv('test.csv')
                     product=ProductModel(product_url=url,
                                          product_name=product_name,
                                          product_num=int(product_num),
@@ -94,7 +93,6 @@ def search(request):
                     keyword, keyword_example, key_score, key_freq = make_final_data(total_data=temp, col_name='review',
                                                                                     limit_size=200, product_name=product_name, T_DEBUG=1)
                     for word in keyword:
-
                         productKeyword=ProductKeyword(product_reference_id=int(product_num),
                                                       keyword=word,
                                                       review=keyword_example[word]['original_review'],

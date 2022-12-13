@@ -46,7 +46,7 @@ def get_keyword(df: pd.DataFrame, product_name, wv, col='review'):
     for i in range(len(entire_txt)):
         for w,r in sorted(keywords.items(), key=lambda x: x[1], reverse=True):
             if w in word2id and w in wv:
-                    if tfidf[i, word2id[w]] > _IMPORTANCE_:
+                    if tfidf[i, word2id[w]] > _IMPORTANCE_ and mecab_pos(w)[0][1] in get_words:
                         keyword[w] = 0
                         
     keyword = [k for k in keyword.keys()]
