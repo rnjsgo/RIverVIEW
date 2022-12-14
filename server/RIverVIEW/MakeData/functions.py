@@ -20,7 +20,7 @@ def Crawling(product_num, merchant_num, store, pageNo):
     sort_type = 'REVIEW_RANKING'
     if pageNo %2== 0:
         sort_type = 'REVIEW_RANKING'
-    elif pageNo %3== 1:
+    elif pageNo %2== 1:
         sort_type = 'REVIEW_CREATE_DATE_DESC'
     try:
         if store == 'shopping':
@@ -86,7 +86,7 @@ def start_crawling(product_num, url=None):
 
         pool = Pool(4)
         func = partial(Crawling, product_num,merchant_num,store)
-        temp= pool.map(func, range(1, 71))
+        temp= pool.map(func, range(1, 25))
         pool.close()
         pool.join()
         temp = list(filter(None, temp))

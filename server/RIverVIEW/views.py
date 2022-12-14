@@ -91,7 +91,7 @@ def search(request):
                                          img_src=img_src)
                     product.save()
                     keyword, keyword_example, key_score, key_freq = make_final_data(total_data=temp, col_name='review',
-                                                                                    limit_size=700, product_name=product_name, T_DEBUG=1)
+                                                                                    limit_size=250, product_name=product_name, T_DEBUG=1)
                     for word in keyword:
                         productKeyword=ProductKeyword(product_reference_id=int(product_num),
                                                       keyword=word,

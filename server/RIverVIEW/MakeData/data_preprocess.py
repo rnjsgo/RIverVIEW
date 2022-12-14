@@ -114,6 +114,7 @@ def mecab_get_useful_word(raw, pos=nn_v_words, stopword=stopwords):
 
 #형태소분리 -> 다시 이어붙이기
 def tok_concat_str(sentence: str):
+    sentence = clean_str(sentence)
     return ' '.join(mecab_morphs(sentence))
 
 def clean_str(text):

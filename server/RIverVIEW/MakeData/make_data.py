@@ -22,7 +22,7 @@ def  make_final_data(total_data: pd.DataFrame, col_name='review', limit_size = 1
     total_data = dataframe_limit_string_len(total_data, col_name=col_name,str_len = 400)
     total_data = dataframe_clean(total_data,col_name)
     total_data = dataframe_make_clean_str_col(total_data,col_name=col_name)
-    total_data = total_data.sample(frac=1)
+    #total_data = total_data.sample(frac=1)
     total_data.reset_index(drop=True, inplace=True)
     total_data = dataframe_cut(total_data,limit_size)
 
@@ -36,19 +36,19 @@ def  make_final_data(total_data: pd.DataFrame, col_name='review', limit_size = 1
 
 
     t.cut('데이터 전처리')
-    w2v = w2v_fintune(total_data)
+    wv = w2v_fintune(total_data['tokenized_data'])
+    #wv = ft_fintune(total_data['tokenized_data'])
     t.cut('w2v 학습')
-    keyword = get_keyword(total_data, product_name, w2v)
+    keyword = get_keyword(total_data, product_name, wv)
     t.cut('키워드 추출')
 
-    VIEW_SINGLE = False
     df, score_sum, key_freq, key_score = make_keyword_dataframe(
         keyword= keyword,
         data= total_data,
         col= col_name,
         size=limit_size,
-        view_single=VIEW_SINGLE,
-        wv= w2v,
+        view_single=True,
+        wv= wv,
         max_len=max_len
     )
     keyword = [k for k,v in key_score.items()]
@@ -60,7 +60,7 @@ def  make_final_data(total_data: pd.DataFrame, col_name='review', limit_size = 1
         col= col_name,
         key_score= key_score,
         size=limit_size,
-        wv=w2v
+        wv=wv
         )#
     t.cut('keyword example')
     t.eend(st, t.end())

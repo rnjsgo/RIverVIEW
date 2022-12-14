@@ -2,6 +2,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from gensim.models import Word2Vec, KeyedVectors
+from gensim.models import FastText
 import gensim
 
 import tensorflow as tf
@@ -32,12 +33,22 @@ _t_debug.eend(_start, _t_debug.end())
 
 def w2v_fintune(tokenized_data):
     model_pretrained = gensim.models.Word2Vec.load(os.path.join(Path(__file__).resolve().parent, 'load/only_review.model'))
-    model_finetuned = Word2Vec(vector_size=200,min_count=0)
+    model_finetuned = Word2Vec(vector_size=200,min_count=0,sg=1)
     model_finetuned.build_vocab(tokenized_data)
     total_examples = model_finetuned.corpus_count
     model_finetuned.build_vocab([list(model_pretrained.wv.key_to_index.keys())], update=True)
     model_finetuned.train(tokenized_data, total_examples= total_examples, epochs= 1)
     model_finetuned.save(os.path.join(Path(__file__).resolve().parent, 'load/only_review.model'))
+    return model_finetuned.wv
+
+def ft_fintune(tokenized_data):
+    #model_pretrained = gensim.models.Word2Vec.load(os.path.join(Path(__file__).resolve().parent, 'load/fast_text.model'))
+    model_finetuned = FastText(tokenized_data,vector_size=200,min_count=5,window=5,workers=4,sg=1)
+    #model_finetuned.build_vocab(tokenized_data)
+    total_examples = model_finetuned.corpus_count
+    #model_finetuned.build_vocab([list(model_pretrained.wv.key_to_index.keys())], update=True)
+    #model_finetuned.train(tokenized_data, total_examples= total_examples, epochs= 1)
+    #model_finetuned.save(os.path.join(Path(__file__).resolve().parent, 'load/fast_text.model'))
     return model_finetuned.wv
 
 #w2v 유사도 확인

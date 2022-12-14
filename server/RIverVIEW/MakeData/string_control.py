@@ -205,24 +205,23 @@ def make_keyword_dataframe(keyword=[], data=pd.DataFrame(), col='review', size=_
                 max_len = i
                 break
         for i in tqdm(df.index):
-            is_NOT_contain_keyword = True
+            
             #score = get_sentence_score(df.loc[i,col], max_len= max_len)
             review_list = get_single_sentence(df.loc[i,col])
             freq = {w:1 for w in keyword}
+            is_NOT_contain_keyword = True
             for sentence in review_list:
                 score = get_sentence_score(sentence, max_len= max_len)
+                tokend = mecab_morphs(sentence)
                 if score == -999:
                     continue
                 for w in keyword:  # 문장에 키워드를 포함하지 않는 키워드는 일단 보지않음.
-                    word = get_contain_same_keyword(w, df.loc[i,'tokenized_data'], wv)
+                    word = get_contain_same_keyword(w, tokend, wv)
                     if word != '_etc':  # 지금 보는 문장에 키워드가 존재한다면
                         keyword_freq[word] += 1
                         freq[word] += 1
                         is_NOT_contain_keyword = False
-                        ret_sentence_keyword.loc[i, word] += score
-            if is_NOT_contain_keyword == False:
-                for w in keyword:
-                    ret_sentence_keyword.loc[i,w] = ret_sentence_keyword.loc[i,w] / freq[w]
+                        ret_sentence_keyword.loc[i, word] = ret_sentence_keyword.loc[i, word]+score
                     
 
             if is_NOT_contain_keyword:  # 문장에 키워드를 포함하고있지 않은 일반 리뷰라면,
@@ -245,7 +244,6 @@ def make_keyword_dataframe(keyword=[], data=pd.DataFrame(), col='review', size=_
             if keyword_score[w] > 100:
                 keyword_score[w] = 100
     
-    print(keyword_score)
     return ret_sentence_keyword, keyword_score_sum, keyword_freq, keyword_score
 
 
