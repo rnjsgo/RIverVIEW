@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<head>
+    <link rel="stylesheet" href="{% static '/detail.css' %}">
+    <h2 class="border-bottom py-2">{{ product.product_name }}</h2>
+    <img src="{{product.img_src}}" alt="product_img">
+</head>
+<body>
+    <div class="ai-score-card">
+        <div class="card">
+            <div class="card-body">
+                <h4>AI score</h4>
+                <h1 style="text-align: center">{{product.product_score}}점</h1>
+                {% if product.product_score >= 90 %}
+                    최고의 상품이에요. 적극 추천합니다! ;)
+                {% elif product.product_score >= 70 %}
+                    좋은 상품이네요. 대부분의 구매자들이 만족하고 있어요!
+                {% elif product.product_score >= 50 %}
+                   괜찮은 상품인것 같아요! 하지만 분석 결과를 고려해보세요.
+                {% elif product.product_score >= 30 %}
+                   구입을 신중하게 생각해봐야 하겠는걸요?
+                {% else %}
+                    저희는 이 상품을 추천하지 않아요 :(
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="frequent-rank-table">
+        <div class="card">
+            <div class="card-body">
+                <h4>주요 키워드</h4>
+                {{result_keyword_cnt}}개가 있습니다.
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width:15%">빈도수</th>
+                      <th scope="col" style="width:15%">키워드</th>
+                      <th scope="col" style="width:30%">키워드별 만족도</th>
+					  <th scope="col" style="width:40%">실제 리뷰</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for word in result_keyword %}
+                        <tr>
+                          <th scope="row">{{ forloop.counter }}위</th>
+                          <td>{{ word.keyword }}</td>
+                          <td>
+                {% if word.keyword_score <= 35 %}
+                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD2525"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score}}px) "></div></div></div>
+                {% elif word.keyword_score <= 60 %}
+                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD801D"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                {% else %}
+                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #45892C"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                {% endif %}
+                <div class='a1_ratio'>{{ word.keyword_score }}%</div>
+                          </td>
+						  <td>
+                                "{{word.review}}"
+                            </td>
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="pos_keyword-rank-table">
+        <div class="card">
+            <div class="card-body">
+                <h4>이 상품은 이런 점이 좋아요!</h4>
+                긍정적인 키워드가 {{ pos_keyword_cnt }}개가 있습니다.
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width:15%">긍정적</th>
+                      <th scope="col" style="width:15%">키워드</th>
+                      <th scope="col" style="width:30%">키워드별 만족도</th>
+                      <th scope="col" style="width:40%">실제 리뷰</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for word in pos_keyword %}
+                        <tr>
+                          <th scope="row">{{ forloop.counter }}위</th>
+                          <td>{{ word.keyword }}</td>
+                          <td>
+                                {% if word.keyword_score <= 35 %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD2525"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% elif word.keyword_score <= 60 %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD801D"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% else %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #45892C"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% endif %}
+                                <div class='a1_ratio'>{{ word.keyword_score }}%</div>
+                          </td>
+                            <td>
+                                "{{word.review}}"
+                            </td>
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+     <div class="neg_keyword-rank-table">
+        <div class="card">
+            <div class="card-body">
+                <h4>이 상품은 이게 아쉬워요!</h4>
+                부정적인 키워드가 {{neg_keyword_cnt}} 개가 있습니다.
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width:15%">부정적</th>
+                      <th scope="col" style="width:15%">키워드</th>
+                      <th scope="col" style="width:30%">키워드별 만족도</th>
+                      <th scope="col" style="width:40%">실제 리뷰</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for word in neg_keyword %}
+                        <tr>
+                          <th scope="row">{{ forloop.counter }}위</th>
+                          <td>{{ word.keyword }}</td>
+                          <td>
+                                {% if word.keyword_score <= 35 %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD2525"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% elif word.keyword_score <= 60 %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #AD801D"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% else %}
+                                <div class='a1_bar'><div class='a1_green_bar' style="background-color: #45892C"><div class='a1_white_bar' style="width : calc(240px - 2.4*{{ word.keyword_score }}px )"></div></div></div>
+                                {% endif %}
+                                <div class='a1_ratio'>{{ word.keyword_score }}%</div>
+                          </td>
+                            <td>
+                                "{{word.review}}"
+                            </td>
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+         <div class="wordCloud">
+             <div class="card">
+            <div class="card-body">
+
+             <h4>상품 키워드 한눈에 보기!</h4>
+             <img src="{% get_static_prefix %}image/wordcloud/{{product.product_num}}.png">
+            </div>
+             </div>
+         </div>
+
+
+
+</body>
+{% endblock %}
